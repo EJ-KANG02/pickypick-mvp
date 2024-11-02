@@ -18,7 +18,7 @@ function App() {
                 allergies: allergies.split(',').map(item => item.trim()),
             });
 
-            const recommendationData = JSON.parse(response.data.recommendation);  // JSON 형식의 응답 파싱
+            const recommendationData = response.data.recommendation;  // JSON 형식의 응답 사용
             setRecommendation(recommendationData);
         } catch (error) {
             console.error('Error fetching recommendation:', error);
@@ -68,23 +68,23 @@ function App() {
                     <div className="mt-6 space-y-4">
                         {Object.keys(recommendation).map((mealKey, index) => {
                             const meal = recommendation[mealKey];
-                            //재료 및 영양소 0~1개일 시 예외 처리
                             const nutrients = meal.nutrients || {};
                             const ingredients = Array.isArray(meal.ingredients)
                                 ? meal.ingredients.join(', ')
-                                : meal.ingredients || '재료 정보 없음';
+                                : '재료 정보 없음';
+
                             return (
                                 <div key={index} className="p-4 border border-gray-300 rounded">
-                                    <h3 className="font-bold text-lg">{meal.name}</h3>
-                                    <p className="meal-description">{meal.description  || '식단 설명 없음'}</p>
-                                    <p>난이도: {meal.difficulty} | 요리 시간: {meal.cooking_time}</p>
+                                    <h3 className="font-bold text-lg">{meal.name || '식단 이름 없음'}</h3>
+                                    <p className="meal-description">{meal.description || '설명 없음'}</p>
+                                    <p>난이도: {meal.difficulty || '정보 없음'} | 요리 시간: {meal.cooking_time || '정보 없음'}</p>
                                     <p>재료: {ingredients}</p>
-                                    <p>칼로리: {meal.calories} kcal</p>
-                                    <p>탄수화물: {nutrients.carbs || '정보 없음'} </p>
-                                    <p>단백질: {nutrients.protein || '정보 없음'} </p>
-                                    <p>지방: {nutrients.fat || '정보 없음'} </p>
+                                    <p>칼로리: {nutrients.calories || '정보 없음'}</p>
+                                    <p>탄수화물: {nutrients.carbs || '정보 없음'}</p>
+                                    <p>단백질: {nutrients.protein || '정보 없음'}</p>
+                                    <p>지방: {nutrients.fat || '정보 없음'}</p>
                                     <p>비타민: {nutrients.vitamins || '정보 없음'}</p>
-                                    <a href={meal.recipe_link} target="_blank" rel="noopener noreferrer"
+                                    <a href={meal.recipe_link || '#'} target="_blank" rel="noopener noreferrer"
                                        className="recipe-button">
                                         레시피 보기
                                     </a>
