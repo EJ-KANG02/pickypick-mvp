@@ -85,8 +85,8 @@ function App() {
                                     <p>지방: {nutrients.fat || '정보 없음'} </p>
                                     <p>비타민: {nutrients.vitamins || '정보 없음'}</p>
                                     <a href={meal.recipe_link} target="_blank" rel="noopener noreferrer"
-                                       className="text-blue-500 underline">
-                                        레시피 링크
+                                       className="recipe-button">
+                                        레시피 보기
                                     </a>
                                 </div>
                             );
