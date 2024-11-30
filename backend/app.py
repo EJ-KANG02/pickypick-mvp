@@ -4,14 +4,174 @@ import openai
 import requests
 from openai import OpenAIError
 from bs4 import BeautifulSoup
-
+import logging
+from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
 # OpenAI API 키 설정
-openai.api_key = '-'
+openai.api_key = 'your_openai_api_key_here'
 
-# 만개의 레시피에서 레시피 세부 정보 크롤링
+# 공공급식데이터 API 키와 기본 URL 설정
+API_KEY = '037b1bc78c19428494ca85e1360445a7'  # 발급받은 API 키로 교체
+BASE_URL = 'http://open.neis.go.kr/hub/mealServiceDietInfo'
+SCHOOL_SEARCH_URL = 'http://open.neis.go.kr/hub/schoolInfo'
+
+# 교육청 코드 및 학교 코드 목록을 가져오는 API
+@app.route('/api/education-codes', methods=['GET'])
+def get_education_codes():
+    # 실제로 이 정보를 외부 API나 데이터베이스에서 가져오는 방법을 추가
+    education_codes = [
+        {"code": "J10", "name": "경기도교육청"},
+        {"code": "B10", "name": "서울특별시교육청"},
+        {"code": "J12", "name": "부산광역시교육청"},
+        # 추가적인 교육청 코드
+    ]
+    return jsonify(education_codes), 200
+
+# 학교 이름을 통해 학교 코드(SD_SCHUL_CODE)와 교육청 코드(ATPT_OFCDC_SC_CODE) 가져오기
+@app.route('/api/schools', methods=['POST'])
+@app.route('/api/schools', methods=['POST'])
+def get_schools():
+    app.logger.debug("Received POST request for /api/schools")
+    data = request.json
+    education_code = data.get('education_code')
+
+    if not education_code:
+        app.logger.error("교육청 코드가 제공되지 않았습니다.")
+        return jsonify({'error': '교육청 코드를 제공해야 합니다.'}), 400
+
+    all_schools = []  # 모든 학교를 저장할 리스트
+
+    # 페이지네이션을 고려하여 여러 페이지에서 데이터를 받아옵니다.
+    page = 1
+    while True:
+        params = {
+            'KEY': API_KEY,
+            'Type': 'json',
+            'pIndex': page,  # 페이지 번호
+            'pSize': 1000,  # 한 페이지에 최대 1000개 학교
+            'ATPT_OFCDC_SC_CODE': education_code  # 교육청 코드로 학교 목록 요청
+        }
+
+        app.logger.debug(f"Sending request to external API with params: {params}")
+
+        response = requests.get(SCHOOL_SEARCH_URL, params=params)
+
+        # 외부 API 응답 상태 코드 및 본문 확인
+        app.logger.debug(f"External API response status: {response.status_code}")
+        app.logger.debug(f"External API response body: {response.text}")
+
+        if response.status_code != 200:
+            app.logger.error(f"External API request failed with status code: {response.status_code}")
+            return jsonify({'error': '학교 데이터를 가져오는 데 실패했습니다.'}), 500
+
+        # 응답 데이터 처리
+        data = response.json()
+        app.logger.debug(f"Received response from school API: {data}")
+
+        # 데이터 확인
+        if 'schoolInfo' not in data or 'row' not in data['schoolInfo'][1]:
+            app.logger.error("학교 정보를 찾을 수 없습니다.")
+            return jsonify({'error': '학교 정보를 찾을 수 없습니다.'}), 404
+
+        schools = data['schoolInfo'][1]['row']
+        # 초등학교만 필터링
+        elementary_schools = [school for school in schools if school['SCHUL_KND_SC_NM'] == '초등학교']
+
+        # 초등학교를 전체 목록에 추가
+        all_schools.extend(elementary_schools)
+
+        # 만약 받은 학교 수가 pSize 이상이라면, 다음 페이지로 넘어갑니다.
+        if len(schools) < 1000:
+            break  # 더 이상 데이터가 없으면 종료
+
+        page += 1  # 다음 페이지로 이동
+
+    # 반환할 데이터 확인 (샘플 로그)
+    app.logger.debug(f"Returning schools data: {all_schools[:5]}")  # 상위 5개 항목만 로그에 출력
+
+    return jsonify(all_schools), 200
+
+# 오늘 날짜를 기준으로 급식 정보만 필터링하는 함수
+def get_today_meal_info(data):
+    today = datetime.today().strftime('%Y%m%d')  # 오늘 날짜 (YYYYMMDD 형식)
+    app.logger.debug(f"Today's date: {today}")
+
+    meals = []
+
+    # 'mealServiceDietInfo' 안에 급식 정보가 들어있다는 가정
+    for meal_info in data['mealServiceDietInfo']:
+        # 'row' 배열에서 오늘 날짜와 일치하는 급식 메뉴를 찾기
+        for meal in meal_info.get('row', []):
+            meal_date = meal.get('MLSV_YMD', '')
+            app.logger.debug(f"Meal date: {meal_date}")
+
+            # 급식 날짜가 오늘 날짜와 같으면 필터링
+            if meal_date == today:
+                meals.append({
+                    'date': meal_date,
+                    'menu': meal.get('DDISH_NM', '정보 없음')  # 급식 메뉴
+                })
+
+
+    app.logger.debug(f"Filtered meals for today: {meals}")
+    return meals
+
+# 급식 정보 요청 (오늘의 급식만 필터링)
+@app.route('/api/school-menu', methods=['POST'])
+def school_menu():
+    data = request.json
+    school_code = data.get('school_code')
+    education_code = data.get('education_code')
+
+    # 로그 확인용
+    app.logger.debug(f"Received school_code: {school_code}, education_code: {education_code}")
+
+    if not school_code or not education_code:
+        return jsonify({'error': '학교 코드와 교육청 코드가 필요합니다.'}), 400
+
+    page = 1
+    while page < 3:
+        params = {
+            'KEY': API_KEY,
+            'Type': 'json',
+            'pIndex': page,
+            'pSize': 1000,
+            'ATPT_OFCDC_SC_CODE': education_code,
+            'SD_SCHUL_CODE': school_code,
+            'MMEAL_SC_CODE': '2'  # 급식 정보 (중식)
+        }
+
+        # 요청 보내기 전에 URL 및 파라미터 확인
+        app.logger.debug(f"Making GET request to: {BASE_URL} with params: {params}")
+
+        response = requests.get(BASE_URL, params=params)
+        app.logger.debug(f"Response status code: {response.status_code}")  # 응답 상태 코드
+        app.logger.debug(f"Response body: {response.text}")  # 응답 본문(전체 데이터)
+
+        data = response.json()
+
+        # 응답 데이터에 급식 정보가 있는지 확인
+        if 'mealServiceDietInfo' not in data:
+            app.logger.error('급식 정보를 찾을 수 없습니다.')
+            return jsonify({'error': '급식 정보를 찾을 수 없습니다.'}), 404
+
+        # 오늘의 급식만 필터링
+        meals = get_today_meal_info(data)
+        # 만약 meals 가 값이 도출됐다면 while 문 빠져나오도록 코드 달아줘
+        if len(meals) > 0:
+            break
+
+        page += 1
+
+    # 오늘의 급식 정보가 없을 경우
+    if len(meals) == 0:
+        return jsonify({'error': '오늘의 급식 정보가 없습니다.'}), 404
+
+    return jsonify({'menu': meals}), 200
+
+# 레시피 크롤링 기능
 def fetch_recipe_from_mangae(recipe_name):
     search_url = f"https://www.10000recipe.com/recipe/list.html?q={recipe_name}"
     print(f"Searching for recipe with name: {recipe_name}")
@@ -135,6 +295,9 @@ def recommendation():
     except Exception as e:
         print(f"General error: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+# 로깅 설정 (디버깅용)
+logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
     app.run(debug=True)
