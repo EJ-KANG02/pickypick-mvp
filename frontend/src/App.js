@@ -176,7 +176,7 @@ function App() {
 
                     <label className="block">
                         <span className="text-gray-700">성별</span>
-                        <div className="mt-2">
+                        <div className="mt-2 radio-group">
                             <label className="mr-4">
                                 <input
                                     type="radio"
