@@ -7,12 +7,17 @@ from bs4 import BeautifulSoup
 import logging
 import json
 import re
+import os
+from dotenv import load_dotenv
 from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
+# .env 파일 로드
+load_dotenv()
+
 # OpenAI API 키 설정
-openai.api_key = '-'
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 # 공공급식데이터 API 키와 기본 URL 설정
 API_KEY = '037b1bc78c19428494ca85e1360445a7'  # 발급받은 API 키로 교체
