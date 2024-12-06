@@ -282,35 +282,36 @@ function App() {
                         </>
                     )}
 
-                    <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    <button type="submit" className="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600">
                         추천 식단 받기
                     </button>
                 </form>
 
                 {/* 하루 필수 영양소 정보 제공 */}
+                {isMenuLoading && <p>하루 필수 영양소를 불러오는 중...</p>}
                 {clientNutrition && (
-                    <div className="mt-6 space-y-4">
-                        <h2 className="text-2xl font-bold text-gray-700">하루 권장 영양소</h2>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 border border-gray-300 rounded">
-                                <h3 className="text-lg font-semibold text-gray-800">칼로리</h3>
-                                <p className="text-gray-600">{clientNutrition.client_calories}</p>
+                    <div className="section">
+                        <h2 className="section-title">하루 권장 영양소</h2>
+                        <div className="nutrition-grid">
+                            <div className="nutrition-card">
+                                <h3>칼로리</h3>
+                                <p>{clientNutrition.client_calories} </p>
                             </div>
-                            <div className="p-4 border border-gray-300 rounded">
-                                <h3 className="text-lg font-semibold text-gray-800">탄수화물</h3>
-                                <p className="text-gray-600">{clientNutrition.client_carbs}</p>
+                            <div className="nutrition-card">
+                                <h3>탄수화물</h3>
+                                <p>{clientNutrition.client_carbs} </p>
                             </div>
-                            <div className="p-4 border border-gray-300 rounded">
-                                <h3 className="text-lg font-semibold text-gray-800">단백질</h3>
-                                <p className="text-gray-600">{clientNutrition.client_protein}</p>
+                            <div className="nutrition-card">
+                                <h3>단백질</h3>
+                                <p>{clientNutrition.client_protein} </p>
                             </div>
-                            <div className="p-4 border border-gray-300 rounded">
-                                <h3 className="text-lg font-semibold text-gray-800">지방</h3>
-                                <p className="text-gray-600">{clientNutrition.client_fat}</p>
+                            <div className="nutrition-card">
+                                <h3>지방</h3>
+                                <p>{clientNutrition.client_fat} </p>
                             </div>
-                            <div className="p-4 border border-gray-300 rounded col-span-2">
-                                <h3 className="text-lg font-semibold text-gray-800">비타민</h3>
-                                <p className="text-gray-600">{clientNutrition.client_vitamins}</p>
+                            <div className="nutrition-card">
+                                <h3>비타민</h3>
+                                <p>{clientNutrition.client_vitamins}</p>
                             </div>
                         </div>
                     </div>
@@ -320,40 +321,57 @@ function App() {
                 {isMenuLoading && <p>급식 메뉴를 불러오는 중...</p>}
                 {noMenuMessage && <p>{noMenuMessage}</p>}
                 {menu && !isRecommendationLoading && (
-                    <div className="mt-6 space-y-4">
-                        <h2 className="text-xl font-bold text-gray-700">오늘의 급식</h2>
-                        {menu.map((meal, index) => (
-                            <div key={index} className="p-4 border border-gray-300 rounded">
-                                <h3 className="font-bold text-lg">{meal.date}</h3>
-                                <p>{cleanMenuText(meal.menu)}</p>
-                            </div>
-                        ))}
+                    <div className="section">
+                        <h2 className="section-title">오늘의 급식</h2>
+                        <div className="menu-list">
+                            {menu.map((meal, index) => (
+                                <div key={index} className="menu-card">
+                                    <h3 className="menu-date">{meal.date}</h3>
+                                    <p className="menu-text">{cleanMenuText(meal.menu)}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 
                 {/* 추천 식단 표시 */}
                 {isRecommendationLoading && <p>추천 식단을 불러오는 중...</p>}
                 {recommendation && (
-                    <div className="mt-6 space-y-4">
-                        {Object.keys(recommendation).map((mealKey) => (
-                            <div key={mealKey} className="p-4 border border-gray-300 rounded">
-                                <h3 className="font-bold text-lg">{recommendation[mealKey].name}</h3>
-                                <p>{recommendation[mealKey].description}</p>
-                                <ul>
-                                    <li>칼로리: {recommendation[mealKey].nutrients.calories}</li>
-                                    <li>탄수화물: {recommendation[mealKey].nutrients.carbs}</li>
-                                    <li>단백질: {recommendation[mealKey].nutrients.protein}</li>
-                                    <li>지방: {recommendation[mealKey].nutrients.fat}</li>
-                                    <li>비타민: {recommendation[mealKey].nutrients.vitamins}</li>
-                                </ul>
-                                <p>재료: {formatIngredients(recommendation[mealKey].ingredients)}</p>
-                                <p>난이도: {recommendation[mealKey].difficulty}</p>
-                                <p>조리 시간: {recommendation[mealKey].cooking_time}</p>
-                                <a href={recommendation[mealKey].recipe_link} target="_blank" rel="noopener noreferrer" className="text-blue-600">레시피 보기</a>
-                            </div>
-                        ))}
+                    <div className="section">
+                        <h2 className="section-title">추천 식단</h2>
+                        <div className="menu-list">
+                            {Object.keys(recommendation).map((mealKey) => (
+                                <div key={mealKey} className="menu-card">
+                                    <h3 className="menu-title">{recommendation[mealKey].name}</h3>
+                                    <p className="menu-description">{recommendation[mealKey].description}</p>
+                                    <div className="menu-details">
+                                        <div className="menu-item">
+                                            <span className="label">칼로리:</span> {recommendation[mealKey].nutrients.calories}
+                                        </div>
+                                        <div className="menu-item">
+                                            <span className="label">재료:</span> {recommendation[mealKey].ingredients.join(', ')}
+                                        </div>
+                                        <div className="menu-item">
+                                            <span className="label">난이도:</span> {recommendation[mealKey].difficulty}
+                                        </div>
+                                        <div className="menu-item">
+                                            <span className="label">조리 시간:</span> {recommendation[mealKey].cooking_time}
+                                        </div>
+                                    </div>
+                                    <a
+                                        href={recommendation[mealKey].recipe_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="recipe-button"
+                                    >
+                                        레시피 보기
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
+
             </div>
         </div>
     );

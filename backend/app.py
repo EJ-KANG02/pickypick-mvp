@@ -5,6 +5,8 @@ import requests
 from openai import OpenAIError
 from bs4 import BeautifulSoup
 import logging
+import json
+import re
 from datetime import datetime
 app = Flask(__name__)
 CORS(app)
@@ -293,7 +295,7 @@ def recommendation():
 
         print("Sending request to OpenAI API")
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[
                 {
                     "role": "system",
@@ -316,14 +318,14 @@ def recommendation():
                         "편식하거나 알러지 있는 재료의 영양분을 대체할 수 있는 재료가 주 재료로 들어간 음식이어야 합니다."
                         "점심 동안 이미 먹은 칼로리, 영양 성분을 고려해 가장 보충이 필요한 영양소 2개를 꼭 포함해야 합니다."
                         "각 식단에 대해 재료, 칼로리, 탄수화물, 단백질, 지방, 비타민을 포함해 주세요. "
-                        "그리고 메뉴마다 편식 음식, 알러지에서 어떤 점을 대체했는지 (대체 영양소 사용 등) 간단하게 한줄로 설명해주세요. 이때 반드시 description 형식을 지켜서 써주세요. 형식은 편식하는 재료 or 알러지있는 재료 이름 (~~ 영양소 대체) 이래야 합니다."
-                        "최종 응답을 다음 JSON 형식으로 제공해 주세요: "
+                        "그리고 메뉴마다 편식 음식, 알러지에서 어떤 점을 대체했는지 (대체 영양소 사용 등) 간단하게 한줄로 설명해주세요. 이때 반드시 description 형식을 지켜서 써주세요. 형식은 편식하는 재료 or 알러지있는 재료 이름 -> 대체한 재료 이름(~~ 영양소 대체) 이래야 합니다."
+                        "최종 응답을 다음 JSON 형식으로 제공해 주세요 (반드시 정확한 JSON 형식으로만 응답해주세요.): "
                         '{"client_nutrition": {"client_calories": "300kcal", "client_carbs": "50g", "client_protein": "20g", "client_fat": "10g", "client_vitamins": "비타민 정보"}, '
-                        '"meal_1": {"name": "식단 이름", "description": "편식하는 재료 or 알러지 있는 재료 이름 (~~ 영양소 대체)", '
+                        '"meal_1": {"name": "식단 이름", "description": "편식하는 재료 or 알러지 있는 재료 이름 -> 대체한 재료 이름 (~~ 영양소 대체)", '
                         '"nutrients": {"calories": "300kcal", "carbs": "50g", "protein": "20g", "fat": "10g", "vitamins": "비타민 A, 비타민 K"}}, '
-                        '"meal_2": {"name": "식단 이름", "description": "편식하는 재료 or 알러지 있는 재료 이름 (~~ 영양소 대체)", '
+                        '"meal_2": {"name": "식단 이름", "description": "편식하는 재료 or 알러지 있는 재료 이름 -> 대체한 재료 이름 (~~ 영양소 대체)", '
                         '"nutrients": {"calories": "300kcal", "carbs": "50g", "protein": "20g", "fat": "10g", "vitamins": "비타민 B"}}, '
-                        '"meal_3": {"name": "식단 이름", "description": "편식하는 재료 or 알러지 있는 재료 이름 (~~ 영양소 대체)", '
+                        '"meal_3": {"name": "식단 이름", "description": "편식하는 재료 or 알러지 있는 재료 이름 -> 대체한 재료 이름 (~~ 영양소 대체)", '
                         '"nutrients": {"calories": "300kcal", "carbs": "50g", "protein": "20g", "fat": "10g", "vitamins": "비타민 C"}}}}'
                     )
                 }
@@ -332,7 +334,19 @@ def recommendation():
         print("OpenAI API response received")
 
         ai_reply = response['choices'][0]['message']['content']
-        recommendations = eval(ai_reply)
+
+        # 예시 응답을 로깅하여 확인
+        print(f"AI Response: {ai_reply}")
+
+        # AI 응답에서 JSON 파싱을 위한 불필요한 부분 제거
+        # 응답에서 올바른 JSON만 추출
+        ai_reply_cleaned = re.sub(r"^```json|```$", "", ai_reply).strip()  # '```json'과 '```' 제거
+
+        try:
+            recommendations = json.loads(ai_reply_cleaned)  # JSON으로 안전하게 파싱
+        except json.JSONDecodeError as e:
+            print(f"JSON 파싱 오류: {e}")
+            return jsonify({'error': 'AI 응답을 JSON 형식으로 파싱하는데 실패했습니다.'}), 500
 
         # recommendations에서 client_nutrition을 받지 않고, 우리가 계산한 client_nutrition을 넣습니다.
         recommendations["client_nutrition"] = client_nutrition
