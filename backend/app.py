@@ -24,6 +24,11 @@ API_KEY = '037b1bc78c19428494ca85e1360445a7'  # 발급받은 API 키로 교체
 BASE_URL = 'http://open.neis.go.kr/hub/mealServiceDietInfo'
 SCHOOL_SEARCH_URL = 'http://open.neis.go.kr/hub/schoolInfo'
 
+# 기본 경로
+@app.route('/')
+def home():
+    return "Welcome to Pickypick Backend API!"
+
 # 교육청 코드 및 학교 코드 목록을 가져오는 API
 @app.route('/api/education-codes', methods=['GET'])
 def get_education_codes():
