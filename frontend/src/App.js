@@ -56,6 +56,9 @@ function App() {
         setEducationCode(school.ATPT_OFCDC_SC_CODE);
     };
 
+    const currentDate = new Date();
+    const currentDay = currentDate.getDay();  // 0:일요일, 6:토요일
+
     // 급식 메뉴를 가져오는 함수
     const fetchSchoolMenu = async () => {
         if (!schoolCode || !educationCode) {
@@ -80,6 +83,11 @@ function App() {
             }
         } catch (error) {
             console.error('Error fetching school menu:', error);
+            if (currentDay === 0 || currentDay === 6) {
+                setNoMenuMessage('주말에는 급식 정보가 없습니다.');
+                setMenu([]);
+                return [];
+            }
             setNoMenuMessage('급식 정보를 가져오는 데 문제가 발생했습니다.');
             return null;
         } finally {
