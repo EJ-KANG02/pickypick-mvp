@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["https://pickypick-mvp.netlify.app/"]}})
+CORS(app, resources={r"/*": {"origins": ["https://pickypick-mvp.netlify.app"]}})
 
 # .env 파일 로드
 load_dotenv()
