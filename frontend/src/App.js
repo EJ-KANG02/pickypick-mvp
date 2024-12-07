@@ -26,7 +26,7 @@ function App() {
 
     useEffect(() => {
         // 교육청 목록을 가져오는 API 호출
-        axios.get('http://127.0.0.1:5000/api/education-codes')
+        axios.get('${process.env.REACT_APP_API_URL}/api/education-codes')
             .then(response => {
                 setEducationCodes(response.data);
             })
@@ -38,7 +38,7 @@ function App() {
     useEffect(() => {
         // 교육청을 선택하면 해당 교육청의 학교 목록을 가져옵니다.
         if (selectedEducationCode && !isKindergarten) {
-            axios.post('http://127.0.0.1:5000/api/schools', { education_code: selectedEducationCode })
+            axios.post('${process.env.REACT_APP_API_URL}/api/schools', { education_code: selectedEducationCode })
                 .then(response => {
                     // 받은 학교 목록에서 초등학교만 필터링
                     const elementarySchools = response.data.filter(school => school.SCHUL_KND_SC_NM === '초등학교');
@@ -69,7 +69,7 @@ function App() {
         setIsMenuLoading(true); // 급식 메뉴 로딩 시작
 
         try {
-            const response = await axios.post('http://127.0.0.1:5000/api/school-menu', {
+            const response = await axios.post('${process.env.REACT_APP_API_URL}/api/school-menu', {
                 school_code: schoolCode,
                 education_code: educationCode
             });
@@ -113,7 +113,7 @@ function App() {
             const infoData = isKindergarten ? [] : menuData.map(item => item.info);
 
             // 급식 정보를 포함한 추천 요청
-            const response = await axios.post('http://127.0.0.1:5000/api/recommendation', {
+            const response = await axios.post('${process.env.REACT_APP_API_URL}/api/recommendation', {
                 age,
                 height,
                 weight,
