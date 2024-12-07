@@ -305,7 +305,7 @@ def recommendation():
 
         print("Sending request to OpenAI API")
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4o",
             messages=[
                 {
                     "role": "system",
