@@ -149,9 +149,7 @@ def get_today_meal_info(data):
 # 급식 정보 요청 (오늘의 급식만 필터링)
 @app.route('/api/school-menu', methods=['POST'])
 def school_menu():
-    app.logger.debug("Received request at /api/school-menu")
     data = request.json
-    app.logger.debug(f"Request data: {data}")
     school_code = data.get('school_code')
     education_code = data.get('education_code')
 
@@ -307,7 +305,7 @@ def recommendation():
 
         print("Sending request to OpenAI API")
         response = openai.ChatCompletion.create(
-            model="gpt-4o",
+            model="gpt-4",
             messages=[
                 {
                     "role": "system",
