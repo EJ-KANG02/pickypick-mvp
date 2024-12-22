@@ -1,0 +1,231 @@
+/* Body 기본 설정 */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f3f4f6;
+}
+
+/* 제목 스타일 */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+/* 섹션 공통 스타일 */
+.section {
+  background-color: #fff7f0; /* 밝은 주황색 배경 */
+  border: 1px solid #f97316; /* 얇은 주황 윤곽선 */
+  border-radius: 8px; /* 둥근 모서리 */
+  padding: 16px;
+  margin-bottom: 16px; /* 섹션 간 간격 */
+}
+
+/* 하루 권장 영양소 섹션 */
+.nutrition-section {
+  background-color: #fff7f0; /* 밝은 주황색 배경 */
+  border: 2px solid #f97316; /* 얇은 주황 윤곽선 */
+  border-radius: 8px; /* 둥근 모서리 */
+  padding: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2열로 정렬 */
+  gap: 16px;
+}
+
+.nutrition-card {
+  background-color: #f9f9f9;
+  border: 1px solid #e5e5e5; /* 부드러운 회색 윤곽선 */
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.nutrition-card h3 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #444;
+}
+
+.nutrition-card p {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* 오늘의 급식 섹션 */
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* 카드 간 간격 */
+}
+
+.menu-card {
+  background-color: #ffffff; /* 흰색 배경 */
+  border: 1px solid #e5e5e5; /* 부드러운 윤곽선 */
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.menu-date {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.menu-text {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* 추천 식단 섹션 */
+.recommendation-section {
+  background-color: #fff;
+  border: 2px solid #f97316; /* 얇은 주황색 윤곽선 */
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.meal-card {
+  background-color: #fafafa;
+  border: 1px solid #ddd; /* 부드러운 윤곽선 */
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 1rem;
+}
+
+/* 추천 식단 메뉴 제목 */
+.menu-title {
+  font-size: 1.4rem; /* 더 큰 글씨 */
+  font-weight: bold; /* 굵게 강조 */
+  color: #333; /* 진한 색상 */
+  margin-bottom: 8px;
+}
+
+/* 추천 식단 설명 (예: 생선 -> 닭가슴살) */
+.menu-description {
+  font-size: 1rem; /* 일반 글씨 크기 */
+  font-style: italic; /* 이탤릭체 */
+  color: #555; /* 부드러운 색상 */
+  margin-bottom: 12px; /* 아래와 간격 추가 */
+}
+
+/* 메뉴 카드 내부 세부 정보 */
+.menu-details {
+  margin-bottom: 1rem;
+}
+
+.menu-item {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.label {
+  font-weight: bold;
+  color: #333;
+}
+
+/* 레시피 버튼 스타일 */
+.recipe-button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #f97316; /* 주황색 배경 */
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.recipe-button:hover {
+  background-color: #ea580c; /* 더 어두운 주황색 */
+}
+
+/* 버튼 호버 효과 */
+button:hover {
+  opacity: 0.9;
+}
+
+/* 공통 레이아웃 */
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.items-center {
+  align-items: center;
+}
+
+/* 텍스트 색상 */
+.text-gray-100 {
+  color: #f3f4f6;
+}
+
+.text-gray-700 {
+  color: #4b5563;
+}
+
+.text-gray-800 {
+  color: #1f2937;
+}
+
+/* 배경 색상 */
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+
+.bg-white {
+  background-color: white;
+}
+
+/* 윤곽선 색상 */
+.border-orange-500 {
+  border-color: #f97316;
+}
+
+.bg-orange-500 {
+  background-color: #f97316;
+}
+
+.bg-orange-600 {
+  background-color: #ea580c;
+}
+
+/* 그림자 효과 */
+.shadow-lg {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* 기타 */
+.rounded-lg {
+  border-radius: 8px;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  padding: 0;
+}
